@@ -2,8 +2,9 @@
 
 #include <iostream>
 
-#include <ove/system/window.hpp>
 #include <ove/core/util/guard.hpp>
+#include <ove/system/window.hpp>
+#include <ove/graphics/renderer/render_device.hpp>
 
 namespace ove
 {
@@ -11,26 +12,32 @@ namespace ove
 	{
 		struct app_config_t
 		{
+			int argc = 0;
+			char** argv = nullptr;
 			std::string respath = "";
-			system::window_config_t wconfig;
-			core::u32 target_fps = 0;
-		};
 
+			system::window_config_t wconfig;
+			system::window_t* pWindow = nullptr;
+
+			graphics::render_device_config_t gconfig;
+			graphics::render_device_t* pRenderDevice = nullptr;
+		};
 
 		struct app_t : public core::nocopy
 		{
 		public:
-			app_t() : m_pWindow(nullptr) {}
-			~app_t() {}
+			// Returns the specified resources path.
+			inline const std::string& getResourcePath() { return m_config.respath; }
 
-		private:
-			// Game window
-			system::window_t* m_pWindow;
+			// Returns game window.
+			inline system::window_t& getWindow() { return *m_config.pWindow; }
 
-			friend struct engine_t;
-			inline void config(system::window_t* pWindow) { m_pWindow = pWindow; }
+			// Returns game render device.
+			inline graphics::render_device_t& getRenderDevice() { return *m_config.pRenderDevice; }
 
 		protected:
+			friend struct engine_t;
+
 			// Once at start of program.
 			virtual bool init(const app_config_t& config) = 0;
 
@@ -58,8 +65,10 @@ namespace ove
 			// Called once at end of program.
 			virtual void clean() = 0;
 
-			// Returns game window.
-			inline system::window_t const & getWindow() { return *m_pWindow; }
+		private:
+			app_config_t m_config;
+
+			inline void config(const app_config_t& config) { m_config = config; }
 		};
 	}
 }

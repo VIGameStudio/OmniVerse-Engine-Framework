@@ -7,10 +7,10 @@ using namespace ove::core;
 using namespace ove::system;
 using namespace ove::framework;
 
-int engine_t::init(window_t* const pWindow, const app_config_t& config, app_t* const pApp)
+int engine_t::init(const app_config_t& config, app_t* const pApp)
 {
 	// Create window.
-	if (!pWindow->create(config.wconfig))
+	if (!config.pWindow->create(config.wconfig))
 	{
 		std::cerr << "Failed to create window, shutting down ..." << std::endl;
 		return EXIT_FAILURE;
@@ -19,7 +19,7 @@ int engine_t::init(window_t* const pWindow, const app_config_t& config, app_t* c
 	srand((u32)time(NULL));
 
 	// Configure game.
-	pApp->config(pWindow);
+	pApp->config(config);
 
 	// Initialize game.
 	if (!pApp->init(config))
@@ -27,13 +27,15 @@ int engine_t::init(window_t* const pWindow, const app_config_t& config, app_t* c
 		return EXIT_FAILURE;
 	}
 	
-	loop(pWindow, config, pApp);
+	loop(config, pApp);
 
-	delete pWindow;
+	delete config.pRenderDevice;
+	delete config.pWindow;
+
 	return EXIT_SUCCESS;
 }
 
-void engine_t::loop(window_t* const pWindow, const app_config_t& config, app_t* const pApp)
+void engine_t::loop(const app_config_t& config, app_t* const pApp)
 {
 #define VERBOSE false
 #define LOG_FPS true
@@ -48,7 +50,7 @@ void engine_t::loop(window_t* const pWindow, const app_config_t& config, app_t* 
 	nano_time_t elapsed;
 	nano_time_t carry;
 	//nano_time_t diff;
-	const nano_time_t frameTime = nano_time_t(sec_time_t(1.0 / config.target_fps));
+	const nano_time_t frameTime = nano_time_t(sec_time_t(1.0 / config.gconfig.target_fps));
 
 	hres_timer_t fpsTimer;
 	fpsTimer.reset();
@@ -62,7 +64,7 @@ void engine_t::loop(window_t* const pWindow, const app_config_t& config, app_t* 
 	sec_time_t time(0);
 
 	// Start the game loop
-	while (looping && !pWindow->shouldClose())
+	while (looping && !config.pWindow->shouldClose())
 	{
 		elapsed = frameTimer.elapsed<nano_t>() + carry;
 		carry = nano_time_t(0);
@@ -116,8 +118,8 @@ void engine_t::loop(window_t* const pWindow, const app_config_t& config, app_t* 
 		if (PROFILE)
 			std::cout << "render: " << profileTimer.secs() << "s\n";
 
-		pWindow->swapBuffers();
-		pWindow->pollEvents();
+		config.pWindow->swapBuffers();
+		config.pWindow->pollEvents();
 
 		frames++;
 		if (fpsTimer.elapsed<sec_t>() >= oneSec)
