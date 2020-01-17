@@ -68,10 +68,11 @@ void engine_t::loop(const app_config_t& config, app_t* const pApp)
 	{
 		elapsed = frameTimer.elapsed<nano_t>() + carry;
 		carry = nano_time_t(0);
-		sec_time_t dt = sec_time_t(elapsed);
+		sec_time_t deltaTime = sec_time_t(elapsed);
+		time += deltaTime;
 
 		if (PROFILE)
-			std::cout << "elapsed: " << dt.count() << "s\n";
+			std::cout << "elapsed: " << deltaTime.count() << "s\n";
 
 		/*if (elapsed < frameTime)
 		{
@@ -97,15 +98,16 @@ void engine_t::loop(const app_config_t& config, app_t* const pApp)
 
 		frameTimer.reset();
 
-		time += dt;
+		f64 dt = deltaTime.count();
+		dt = dt < 0 ? 0 : dt;
 
 		profileTimer.reset();
-		pApp->fixed((f32)time.count(), (f32)dt.count());
+		pApp->fixed((f32)time.count(), (f32)dt);
 		if (PROFILE)
 			std::cout << "fixed: " << profileTimer.secs() << "s\n";
 
 		profileTimer.reset();
-		pApp->update((f32)dt.count());
+		pApp->update((f32)dt);
 		if (PROFILE)
 			std::cout << "update: " << profileTimer.secs() << "s\n";
 
