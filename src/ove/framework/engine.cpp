@@ -26,7 +26,7 @@ int engine_t::init(const app_config_t& config, app_t* const pApp)
 	{
 		return EXIT_FAILURE;
 	}
-	
+
 	loop(config, pApp);
 
 	delete config.pRenderDevice;
@@ -100,22 +100,26 @@ void engine_t::loop(const app_config_t& config, app_t* const pApp)
 
 		f64 dt = deltaTime.count();
 		dt = dt < 0 ? 0 : dt;
+		f32 f_dt = (f32)dt;
 
+		// Fixed step
 		profileTimer.reset();
-		pApp->fixed((f32)time.count(), (f32)dt);
+		pApp->fixed((f32)time.count(), f_dt);
 		if (PROFILE)
 			std::cout << "fixed: " << profileTimer.secs() << "s\n";
 
+		// Update step
 		profileTimer.reset();
-		pApp->update((f32)dt);
+		pApp->update(f_dt);
 		if (PROFILE)
 			std::cout << "update: " << profileTimer.secs() << "s\n";
 
 		profileTimer.reset();
 
-		pApp->pre_draw();
-		pApp->draw();
-		pApp->post_draw();
+		// Rendering sequence
+		pApp->pre_draw(f_dt);
+		pApp->draw(f_dt);
+		pApp->post_draw(f_dt);
 
 		if (PROFILE)
 			std::cout << "render: " << profileTimer.secs() << "s\n";

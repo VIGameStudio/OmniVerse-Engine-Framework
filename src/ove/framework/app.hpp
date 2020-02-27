@@ -54,13 +54,13 @@ namespace ove
 			virtual void update(core::f32 dt) = 0;
 
 			// Called once before scene is rendered.
-			virtual void pre_draw() = 0;
+			virtual void pre_draw(core::f32 dt) = 0;
 
 			// Called every draw call for all views.
-			virtual void draw() = 0;
+			virtual void draw(core::f32 dt) = 0;
 
 			// Called once after scene is rendered.
-			virtual void post_draw() = 0;
+			virtual void post_draw(core::f32 dt) = 0;
 
 			// Called once at end of program.
 			virtual void clean() = 0;
