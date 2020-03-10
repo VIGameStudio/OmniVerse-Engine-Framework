@@ -4,12 +4,9 @@ namespace ove
 {
 	namespace framework
 	{
-		struct scene_t
+		struct scene_obj_t
 		{
-		public:
 
-
-		private:
 		};
 	}
 }

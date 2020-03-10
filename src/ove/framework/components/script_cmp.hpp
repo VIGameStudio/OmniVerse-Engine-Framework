@@ -4,12 +4,8 @@ namespace ove
 {
 	namespace framework
 	{
-		struct scene_t
+		struct script_cmp_t
 		{
-		public:
-
-
-		private:
 		};
 	}
 }
